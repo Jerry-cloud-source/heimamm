@@ -8,19 +8,19 @@
               <span class="sub-title">用户登录</span>
           </div>
           <!-- form表单部分 -->
-          <el-form class="login-form">
-              <el-form-item>
-                   <el-input prefix-icon="el-icon-user"  placeholder="请输入手机号"></el-input>
+          <el-form :model="loginForm" :rules="rules" class="login-form">
+              <el-form-item prop="phone">
+                   <el-input prefix-icon="el-icon-user"  placeholder="请输入手机号" v-model="loginForm.phone"></el-input>
               </el-form-item>
-              <el-form-item>
-                  <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="test" show-password></el-input>
+              <el-form-item prop="password"> 
+                  <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="loginForm.password" show-password></el-input>
               </el-form-item>
-              <el-form-item>
+              <el-form-item prop="code">
                 <!-- <el-input prefix-icon="el-icon-key" placeholder="请输入验证码"></el-input>
                 <img src="" alt=""> -->
                 <el-row :gutter="20">
                   <el-col :span="16">
-                    <el-input prefix-icon="el-icon-key" placeholder="请输入验证码"></el-input>
+                    <el-input prefix-icon="el-icon-key" placeholder="请输入验证码" v-model="loginForm.code"></el-input>
                   </el-col>
                   <el-col :span="8">
                     <img src="" alt="">
@@ -47,9 +47,30 @@
 
 <script>
 export default {
+  name:'Login',
   data(){
     return {
-      test:''
+      loginForm:{  //模型
+        phone:'',  //手机号
+        password:'',  //密码
+        code:''  //验证码
+      },
+      rules:{
+        //校验规则
+        phone:[ 
+          //是个数组，代表这个里面可以写多个校验规则
+          {required: true, message: '必须输入手机号', trigger: 'blur'},
+          {min: 11, max: 11, messsage: '手机号必须是11位', trigger: 'blur'}
+        ],
+        password:[
+          {required: true, message: '必须输入密码', trigger: 'blur'},
+          {min: 6, max: 12, messsage: '长度在6到12个字符', trigger: 'blur'}
+        ],
+        code:[
+          {required: true, message: '必须输入验证码', trigger: 'blur'},
+          {min: 4, max: 4, messsage: '长度必须是4位', trigger: 'blur'}
+        ]
+      }
     }
   }
 }
