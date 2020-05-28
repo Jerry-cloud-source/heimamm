@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <!-- 占位和被替换 -->
+    <router-view></router-view>  
   </div>
 </template>
 
