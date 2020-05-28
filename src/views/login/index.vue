@@ -8,7 +8,7 @@
         <span class="sub-title">用户登录</span>
       </div>
       <!-- form表单部分 -->
-      <el-form :model="loginForm" :rules="rules" class="login-form">
+      <el-form :model="loginForm" :rules="rules" ref="loginFormRef" class="login-form">
         <el-form-item prop="phone">
           <el-input prefix-icon="el-icon-user" placeholder="请输入手机号" v-model="loginForm.phone"></el-input>
         </el-form-item>
@@ -23,12 +23,12 @@
         <el-form-item prop="code">
           <!-- <el-input prefix-icon="el-icon-key" placeholder="请输入验证码"></el-input>
           <img src="" alt="">-->
-          <el-row :gutter="20">
+          <el-row :gutter="16">
             <el-col :span="16">
               <el-input prefix-icon="el-icon-key" placeholder="请输入验证码" v-model="loginForm.code"></el-input>
             </el-col>
             <el-col :span="8">
-              <img src alt />
+              <img :src="codeURL" alt class="captcha" @click="getCode" />
             </el-col>
           </el-row>
         </el-form-item>
@@ -40,7 +40,7 @@
           </el-checkbox>
         </el-form-item>
         <el-form-item>
-          <el-button style="width:100%" type="primary">登录</el-button>
+          <el-button style="width:100%" @click="loginClick" type="primary">登录</el-button>
         </el-form-item>
         <el-form-item>
           <el-button style="width:100%" type="primary">注册</el-button>
@@ -58,12 +58,13 @@ export default {
   name: "Login",
   data() {
     return {
+      codeURL: process.env.VUE_APP_BASEURL + "/captcha?type=login",
       loginForm: {
         //模型
-        phone: "", //手机号
-        password: "", //密码
+        phone: "18511111111", //手机号
+        password: "12345678", //密码
         code: "", //验证码
-        isCheck:false  //是否勾选了用户协议
+        isCheck: true //是否勾选了用户协议
       },
       rules: {
         //校验规则
@@ -71,18 +72,20 @@ export default {
           //是个数组，代表这个里面可以写多个校验规则
           // {required: true, message: '必须输入手机号', trigger: 'blur'},
           // {min: 11, max: 11, messsage: '手机号必须是11位', trigger: 'blur'}
-          {validator:(rule,value,callback)=>{
-            if(!value){
-              return callback(new Error('手机号不能为空'))
-            }
-            //手机号的正则表达式
-            const reg=/^1[3456789][0-9]{9}$/
-            if(!reg.test(value)){
-              return callback(new Error('手机号不合法'))
-            }
-
-            callback();
-          },trigger:"blur"}
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                return callback(new Error("手机号不能为空"));
+              }
+              //手机号的正则表达式
+              const reg = /^1[3456789][0-9]{9}$/;
+              if (!reg.test(value)) {
+                return callback(new Error("手机号不合法"));
+              }
+              callback();
+            },
+            trigger: "blur"
+          }
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
@@ -92,19 +95,58 @@ export default {
           { required: true, message: "必须输入验证码", trigger: "blur" },
           { min: 4, max: 4, message: "长度必须是4位", trigger: "blur" }
         ],
-        isCheck:[
-          {validator:(rule,value,callback)=>{
-            //console.log('value is',value)
-            if(!value){
-              return callback(new Error('必须勾选用户协议'))
-            }
-            callback();
-          },trigger:"change"},
-
-          
+        isCheck: [
+          {
+            validator: (rule, value, callback) => {
+              //console.log('value is',value)
+              if (!value) {
+                return callback(new Error("必须勾选用户协议"));
+              }
+              callback();
+            },
+            trigger: "change"
+          }
         ]
       }
     };
+  },
+  // created(){
+  //   console.log("开发阶段的基础地址：",process.env.VUE_APP_BASEURL)
+  // }
+  //获取验证码
+  methods: {
+    getCode() {
+      console.log("------getCode-------");
+      // this.codeURL=process.env.VUE_APP_BASEURL + '/captcha?type=login&r=' + Math.random()
+      console.log(this.codeURL);
+      this.codeURL =
+        process.env.VUE_APP_BASEURL +
+        "/captcha?type=login&t=" +
+        (new Date() - 0);
+    },
+    //登录
+    loginClick() {
+      this.$refs.loginFormRef.validate(valid => {
+        if (!valid) return;
+
+        //发送请求给后台进行登录
+        this.$axios.post("/login", this.loginForm).then(res => {
+          console.log(res.data);
+          if (res.data.code === 200) {
+            this.$message({
+              message: "恭喜你，登录成功",
+              type: "success"
+            });
+          } else {
+            this.$message.error(res.data.message);
+            this.codeURL =
+              process.env.VUE_APP_BASEURL +
+              "/captcha?type=login&t=" +
+              (new Date() - 0);
+          }
+        });
+      });
+    }
   }
 };
 </script>

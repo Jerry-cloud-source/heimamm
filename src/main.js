@@ -9,6 +9,9 @@ Vue.config.productionTip = false
 //导入element.js
 import '@/plugins/element.js'
 
+//导入request(封装了axios)
+import '@/utils/request.js'
+
 import router from '@/router'
 
 new Vue({
