@@ -2,7 +2,7 @@
   <el-container class="layout">
     <el-header class="header">
       <div class="left">
-        <i style="font-size:20px" class="el-icon-s-fold"></i>
+        <i @click="isCollapse = !isCollapse" style="font-size:20px" class="el-icon-s-fold"></i>
         <img class="marginlr" src="@/assets/layout_icon.png" alt />
         <span class="title">黑马面面</span>
       </div>
@@ -13,19 +13,43 @@
       </div>
     </el-header>
     <el-container>
-      <el-aside width="200px">左侧菜单</el-aside>
-      <el-main>内容部分</el-main>
+      <el-aside width="auto">
+          <el-menu default-active="3" class="el-menu-vertical-demo" :collapse="isCollapse">
+              <el-menu-item index="1">
+                  <i class="el-icon-pie-chart"></i>
+                  <span slot="title">数据预览</span>
+              </el-menu-item>
+              <el-menu-item index="2">
+                  <i class="el-icon-user"></i>
+                  <span slot="title">用户列表</span>
+              </el-menu-item>
+              <el-menu-item index="3">
+                  <i class="el-icon-office-building"></i>
+                  <span slot="title">企业列表</span>
+              </el-menu-item>
+              <el-menu-item index="4">
+                  <i class="el-icon-edit-outline"></i>
+                  <span slot="title">题库列表</span>
+              </el-menu-item>
+              <el-menu-item index="5">
+                  <i class="el-icon-notebook-2"></i>
+                  <span slot="title">学科列表</span>
+              </el-menu-item>
+          </el-menu>
+      </el-aside>
+      <el-main style="background-color:#e8e9ec;">内容部分</el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
-import {removeToken} from '@/utils/token'
+import { removeToken } from "@/utils/token";
 export default {
   data() {
     return {
       avatar: "", //用户头像
-      username: "" //昵称
+      username: "", //昵称
+      isCollapse:false  //是否收起折叠菜单
     };
   },
   created() {
@@ -54,18 +78,16 @@ export default {
         type: "warning"
       })
         .then(async () => {
-          const res = await this.$axios.get('/logout')
+          const res = await this.$axios.get("/logout");
 
-          if(res.data.code===200){
-              //1.删除token
-              removeToken();
-              //2.跳转到首页
-              this.$router.push('/login');
+          if (res.data.code === 200) {
+            //1.删除token
+            removeToken();
+            //2.跳转到首页
+            this.$router.push("/login");
           }
         })
-        .catch(() => {
-          
-        });
+        .catch(() => {});
     }
   }
 };
