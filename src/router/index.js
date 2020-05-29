@@ -24,6 +24,10 @@ const router = new VueRouter({
 });
 
 //全局导航守卫
+/* 
+    在Vue中，只要发生了路由跳转，他都会来到这个方法中
+    相当于拦截到了所有的路由跳转，然后我们再根据实际情况处理
+ */
 router.beforeEach((to, from, next) => {
     //console.log('to------',to);
     //console.log('from----',from);

@@ -1,52 +1,72 @@
 <template>
-  <div class="layout">
+  <el-container class="layout">
+    <el-header class="header">
+      <div class="left">
+        <i style="font-size:20px" class="el-icon-s-fold"></i>
+        <img class="marginlr" src="@/assets/layout_icon.png" alt />
+        <span class="title">黑马面面</span>
+      </div>
+      <div class="right">
+        <img :src="avatar" alt />
+        <span class="name">{{username}}欢迎您</span>
+        <el-button @click="logout" type="primary">退出</el-button>
+      </div>
+    </el-header>
     <el-container>
-      <el-header class="header">
-        <div class="left">
-          <i style="font-size:20px" class="el-icon-s-fold"></i>
-          <img class="marginlr" src="@/assets/layout_icon.png" alt />
-          <span class="title">黑马面面</span>
-        </div>
-        <div class="right">
-          <img :src="avatar" alt />
-          <span class="name">{{username}}欢迎您</span>
-          <el-button type="primary">退出</el-button>
-        </div>
-      </el-header>
-      <el-container>
-        <el-aside width="200px">左侧菜单</el-aside>
-        <el-main>内容部分</el-main>
-      </el-container>
+      <el-aside width="200px">左侧菜单</el-aside>
+      <el-main>内容部分</el-main>
     </el-container>
-  </div>
+  </el-container>
 </template>
 
 <script>
-import {getToken} from '@/utils/token'
+import {removeToken} from '@/utils/token'
 export default {
   data() {
     return {
-        avatar:'', //用户头像
-        username:''  //昵称
+      avatar: "", //用户头像
+      username: "" //昵称
     };
   },
-  created(){
-      this.getUserInfoData();
+  created() {
+    this.getUserInfoData();
   },
-  methods:{
-      async getUserInfoData(){
-          const res = await this.$axios.get('/info',{
-              headers:{
-                  token:getToken()
-              }
-          })
+  methods: {
+    //获取用户信息
+    async getUserInfoData() {
+      const res = await this.$axios.get("/info", {
+        //   headers:{
+        //       token:getToken()
+        //   }
+      });
 
-          //console.log(res.data);
-          if(res.data.code===200){
-              this.avatar=process.env.VUE_APP_BASEURL+"/"+res.data.data.avatar;
-              this.username=res.data.data.username;
-          }
+      //console.log(res.data);
+      if (res.data.code === 200) {
+        this.avatar = process.env.VUE_APP_BASEURL + "/" + res.data.data.avatar;
+        this.username = res.data.data.username;
       }
+    },
+    //退出
+    logout() {
+      this.$confirm("确定退出吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(async () => {
+          const res = await this.$axios.get('/logout')
+
+          if(res.data.code===200){
+              //1.删除token
+              removeToken();
+              //2.跳转到首页
+              this.$router.push('/login');
+          }
+        })
+        .catch(() => {
+          
+        });
+    }
   }
 };
 </script>
