@@ -24,7 +24,7 @@
         <el-form-item>
           <el-button @click="search" type="primary">搜索</el-button>
           <el-button @click="clear" type="default">清除</el-button>
-          <el-button type="primary">+新增用户</el-button>
+          <el-button @click="add" type="primary">+新增用户</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -45,31 +45,38 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="280">
-           <template slot-scope="scope">
-             <el-button type="primary">编辑</el-button>
-             <el-button :type="scope.row.status === 0 ? 'success' : 'info'">{{scope.row.status === 0 ? '启用' : '禁用'}}</el-button>
-             <el-button type="default">删除</el-button>
-           </template>
+          <template slot-scope="scope">
+            <el-button type="primary">编辑</el-button>
+            <el-button
+              @click="changeStatus(scope.row.id)"
+              :type="scope.row.status === 0 ? 'success' : 'info'"
+            >{{scope.row.status === 0 ? '启用' : '禁用'}}</el-button>
+            <el-button @click="deleteUser(scope.row.id,scope.row.username)" type="default">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
       <div style="margin-top:20px; text-align:center;">
-          <el-pagination
+        <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="page"
           :page-sizes="[2, 5, 10, 20]"
           :page-size="limit"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="total">
-    </el-pagination>
+          :total="total"
+        ></el-pagination>
       </div>
     </el-card>
+    <UserEdit ref="userEditRef"></UserEdit>
   </div>
 </template>
 
 <script>
-name:"userList";
+import UserEdit from './user-add-or-update.vue'
 export default {
+  components:{
+    UserEdit
+  },
   data() {
     return {
       searchForm: {
@@ -99,36 +106,75 @@ export default {
           // role_id:this.searchForm.role_id
         }
       });
-      //console.log(res.data);
+      console.log(res.data);
       if (res.data.code === 200) {
         this.userList = res.data.data.items;
         this.total = res.data.data.pagination.total;
       }
     },
     //搜索
-    search(){
-      this.page=1  //从第一页开始搜索
+    search() {
+      this.page = 1; //从第一页开始搜索
 
       this.getUserListData();
     },
     //清除
-    clear(){
+    clear() {
       // this.searchForm.username=''
       // this.searchForm.email=''
       // this.searchForm.role_id=''
 
       //重置表单项的内容
-      this.$refs.searchFormRef.resetFields()
+      this.$refs.searchFormRef.resetFields();
 
       this.search();
     },
-    handleSizeChange(val){  //页容量
-      this.limit=val
-      this.search()
+    //分页条的页容量发生了改变
+    handleSizeChange(val) {
+      //页容量
+      this.limit = val;
+      this.search();
     },
-    handleCurrentChange(val){  //当前页
-      this.page=val
-      this.getUserListData()
+    //分页条的当前页发生了改变
+    handleCurrentChange(val) {
+      //当前页
+      this.page = val;
+      this.getUserListData();
+    },
+    //更改当前行的状态
+    async changeStatus(id) {
+      const res = await this.$axios.post("/user/status", { id });
+
+      if (res.data.code === 200) {
+        this.$message({
+          message: "更改状态成功",
+          type: "success"
+        });
+        //重新查询
+        this.search();
+      }
+    },
+    //删除用户
+    deleteUser(id, username) {
+      this.$confirm(`确定删除${username}该用户吗？`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(async () => {
+        const res = await this.$axios.post("/user/remove", { id });
+        if (res.data.code === 200) {
+          this.$message({
+            type: "success",
+            message: "删除成功!"
+          });
+          //重新查询
+          this.search();
+        }
+      });
+    },
+    add(){
+      this.$refs.userEditRef.dialogVisble = true;
+      this.$refs.userEditRef.mode = "add";
     }
   }
 };

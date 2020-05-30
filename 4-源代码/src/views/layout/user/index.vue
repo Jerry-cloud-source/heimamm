@@ -200,7 +200,7 @@ export default {
     add() {
       // 让新增用户的对话框显示出来
       this.$refs.userEditRef.dialogVisible = true;
-      this.$refs.userEditRef.mode = "add";
+      this.$refs.userEditRef.mode = 'add';
     },
   },
 };
