@@ -12,7 +12,7 @@ axios.defaults.withCredentials=true;
 // Add a request interceptor
 axios.interceptors.request.use(function (config) {
     // Do something before request is sent
-    console.log('------------',config);
+    //console.log('------------',config);
     const token = getToken()
     if(token){
         config.headers.token = token
@@ -25,7 +25,7 @@ axios.interceptors.response.use(function (response) {
     return response;
   }, function (error) {
     // Do something with response error
-    console.log('---',response.data)
+    //console.log('---',response.data)
     if(response.data.code===206){  //token过期了
         //移除token
         removeToken();
