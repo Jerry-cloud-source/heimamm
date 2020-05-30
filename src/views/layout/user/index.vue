@@ -3,13 +3,13 @@
     <!-- 搜索部分 -->
     <el-card>
       <el-form inline :model="searchForm" ref="searchFormRef" label-width="80px">
-        <el-form-item label="用户名称">
-          <el-input style="width:150px;" v-model="searchForm.label"></el-input>
+        <el-form-item label="用户名称" prop="username">
+          <el-input style="width:150px;" v-model="searchForm.username"></el-input>
         </el-form-item>
-        <el-form-item label="用户邮箱">
+        <el-form-item label="用户邮箱" prop="email">
           <el-input style="width:150px;" v-model="searchForm.email"></el-input>
         </el-form-item>
-        <el-form-item label="角色">
+        <el-form-item label="角色" prop="role_id">
           <el-select
             style="width:150px; margin-right:50px;"
             v-model="searchForm.role_id"
@@ -22,8 +22,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button type="default">清除</el-button>
+          <el-button @click="search" type="primary">搜索</el-button>
+          <el-button @click="clear" type="default">清除</el-button>
           <el-button type="primary">+新增用户</el-button>
         </el-form-item>
       </el-form>
@@ -50,21 +50,31 @@
              <el-button :type="scope.row.status === 0 ? 'success' : 'info'">{{scope.row.status === 0 ? '启用' : '禁用'}}</el-button>
              <el-button type="default">删除</el-button>
            </template>
-
         </el-table-column>
       </el-table>
+      <div style="margin-top:20px; text-align:center;">
+          <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="page"
+          :page-sizes="[2, 5, 10, 20]"
+          :page-size="limit"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+    </el-pagination>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script>
-name: "UserList";
+name:"userList";
 export default {
   data() {
     return {
       searchForm: {
         username: "", //昵称
-        emai: "", //邮箱
+        email: "", //邮箱
         role_id: "" //角色数字 1.超级管理员  2.管理员  3.老师  4.学生
       },
       page: 1, //查询时候的页码
@@ -92,8 +102,33 @@ export default {
       //console.log(res.data);
       if (res.data.code === 200) {
         this.userList = res.data.data.items;
-        this.tatol = res.data.data.pagination.tatol;
+        this.total = res.data.data.pagination.total;
       }
+    },
+    //搜索
+    search(){
+      this.page=1  //从第一页开始搜索
+
+      this.getUserListData();
+    },
+    //清除
+    clear(){
+      // this.searchForm.username=''
+      // this.searchForm.email=''
+      // this.searchForm.role_id=''
+
+      //重置表单项的内容
+      this.$refs.searchFormRef.resetFields()
+
+      this.search();
+    },
+    handleSizeChange(val){  //页容量
+      this.limit=val
+      this.search()
+    },
+    handleCurrentChange(val){  //当前页
+      this.page=val
+      this.getUserListData()
     }
   }
 };
