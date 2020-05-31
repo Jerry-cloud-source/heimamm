@@ -35,7 +35,7 @@
         <el-table-column type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="username" label="用户名"></el-table-column>
         <el-table-column prop="phone" label="电话"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
+        <el-table-column prop="email" label="邮箱" width="160"></el-table-column>
         <el-table-column prop="role" label="角色"></el-table-column>
         <el-table-column prop="remark" label="备注"></el-table-column>
         <el-table-column label="状态">
@@ -106,7 +106,7 @@ export default {
           // role_id:this.searchForm.role_id
         }
       });
-      console.log(res.data);
+      //console.log(res.data);
       if (res.data.code === 200) {
         this.userList = res.data.data.items;
         this.total = res.data.data.pagination.total;
